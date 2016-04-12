@@ -4,7 +4,16 @@ envato-market:
   use_labels: true
   exclude_labels:
     - wip
+  quotes:
+    - When the Community Succeeds, We Succeed
+    - The Right People, The Right Environment
+    - Tell It Like It Is
+    - Focus On Results
+    - Not Just The Bottom Line
+    - Fair Go
+    - Diverse and Inclusive
 discovery:
   channel: '#discovery-notify'
   members: []
   use_labels: false
+  quotes: []

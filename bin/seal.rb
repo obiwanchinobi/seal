@@ -4,7 +4,12 @@ require './lib/seal'
 
 def main
   team, mode = ARGV
-  Seal.new(team, mode).bark
+  seal = if mode == 'quotes'
+           QuotingSeal.new(team)
+         else
+           Seal.new(team)
+         end
+  seal.bark
 end
 
 main if __FILE__ == $PROGRAM_NAME

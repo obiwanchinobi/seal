@@ -8,12 +8,8 @@ require './lib/slack_poster.rb'
 
 # Entry point for the Seal!
 class Seal
-
-  attr_reader :mode
-
-  def initialize(team, mode=nil)
+  def initialize(team)
     @team = team
-    @mode = mode
   end
 
   def bark
@@ -33,11 +29,15 @@ class Seal
   end
 
   def bark_at(team)
-    message_builder = MessageBuilder.new(team_params(team), @mode)
+    message_builder = builder.new(team_params(team))
     message = message_builder.build
     channel = ENV["SLACK_CHANNEL"] ? ENV["SLACK_CHANNEL"] : team_config(team)['channel']
     slack = SlackPoster.new(ENV['SLACK_WEBHOOK'], channel, message_builder.poster_mood)
     slack.send_request(message)
+  end
+
+  def builder
+    MessageBuilder
   end
 
   def org_config
@@ -59,20 +59,16 @@ class Seal
       use_labels = config['use_labels']
       exclude_labels = config['exclude_labels']
       exclude_titles = config['exclude_titles']
-      @quotes = config['quotes']
     else
       members = ENV['GITHUB_MEMBERS'] ? ENV['GITHUB_MEMBERS'].split(',') : []
       use_labels = ENV['GITHUB_USE_LABELS'] ? ENV['GITHUB_USE_LABELS'].split(',') : nil
       exclude_labels = ENV['GITHUB_EXCLUDE_LABELS'] ? ENV['GITHUB_EXCLUDE_LABELS'].split(',') : nil
       exclude_titles = ENV['GITHUB_EXCLUDE_TITLES'] ? ENV['GITHUB_EXCLUDE_TITLES'].split(',') : nil
-      @quotes = ENV['SEAL_QUOTES'] ? ENV['SEAL_QUOTES'].split(',') : nil
     end
-    return fetch_from_github(members, use_labels, exclude_labels, exclude_titles) if @mode == nil
-    @quotes
+    fetch_from_github(members, use_labels, exclude_labels, exclude_titles)
   end
 
-
-def fetch_from_github(members, use_labels, exclude_labels, exclude_titles)
+  def fetch_from_github(members, use_labels, exclude_labels, exclude_titles)
     git = GithubFetcher.new(members,
                             use_labels,
                             exclude_labels,
@@ -83,5 +79,23 @@ def fetch_from_github(members, use_labels, exclude_labels, exclude_titles)
 
   def team_config(team)
     org_config[team] if org_config
+  end
+end
+
+#
+# Specialised Seal for quotations
+#
+class QuotingSeal < Seal
+  def builder
+    QuoteBuilder
+  end
+
+  def team_params(team)
+    config = team_config(team)
+    if config
+      config['quotes']
+    else
+      ENV['SEAL_QUOTES'] ? ENV['SEAL_QUOTES'].split(',') : nil
+    end
   end
 end
