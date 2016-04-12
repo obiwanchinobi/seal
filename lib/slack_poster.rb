@@ -8,6 +8,7 @@ class SlackPoster
     @webhook_url = webhook_url
     @team_channel = team_channel
     @mood = mood
+    @postable_day = !Date.today.saturday? && !Date.today.sunday?
     mood_hash
     channel
     create_poster
@@ -19,14 +20,17 @@ class SlackPoster
 
   def send_request(message)
     if ENV['DRY']
+      puts "Will not post on #{Date.today.strftime('%A')}!" unless postable_day
       puts slack_options.inspect
       puts message
     else
-      poster.send_message("#{message}") unless Date.today.saturday? || Date.today.sunday?
+      poster.send_message(message) if postable_day
     end
   end
 
   private
+
+  attr_reader :postable_day
 
   def slack_options
     {
@@ -53,14 +57,14 @@ class SlackPoster
     elsif @mood == "angry"
       @mood_hash[:icon_emoji]= ":#{@season_symbol}angrier_seal:"
       @mood_hash[:username]= "#{@season_name}Angry Seal"
-    elsif @mood == "tea" && @postable_day
+    elsif @mood == "tea"
       @mood_hash[:icon_emoji]= ":manatea:"
       @mood_hash[:username]= "Tea Seal"
-    elsif @mood == "charter" && @postable_day
+    elsif @mood == "charter"
       @mood_hash[:icon_emoji]= ":happyseal:"
       @mood_hash[:username]= "Team Charter Seal"
     else
-      raise "bad mood"
+      raise "Bad mood: #{mood.inspect}"
     end
   end
 
