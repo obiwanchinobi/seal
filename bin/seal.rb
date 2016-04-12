@@ -2,4 +2,9 @@
 
 require './lib/seal'
 
-Seal.new(ARGV[0], ARGV[1]).bark
+def main
+  team, mode = ARGV
+  Seal.new(team, mode).bark
+end
+
+main if __FILE__ == $PROGRAM_NAME
