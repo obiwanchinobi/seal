@@ -93,6 +93,7 @@ describe 'GithubFetcher' do
   end
 
   before do
+    expect(ENV).to receive(:[]).once.with('GITHUB_TOKEN').and_return('symbolic_hex_value')
     expect(Octokit::Client).to receive(:new).and_return(fake_octokit_client)
     expect(fake_octokit_client).to receive_message_chain('user.login')
     expect(fake_octokit_client).to receive(:auto_paginate=).with(true)

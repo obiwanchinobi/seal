@@ -6,7 +6,7 @@ class GithubFetcher
   attr_accessor :people
 
   def initialize(team_members_accounts, use_labels, exclude_labels, exclude_titles)
-    @github = Octokit::Client.new(:access_token => ENV['GITHUB_TOKEN'])
+    @github = Octokit::Client.new(:access_token => github_token)
     @github.user.login
     @github.auto_paginate = true
     @people = team_members_accounts
@@ -27,6 +27,10 @@ class GithubFetcher
   private
 
   attr_reader :use_labels, :exclude_labels, :exclude_titles
+
+  def github_token
+    ENV['GITHUB_TOKEN'] or fail 'Did you forget to GITHUB_TOKEN?'
+  end
 
   def present_pull_request(pull_request, repo_name)
     pr = {}
