@@ -45,7 +45,11 @@ class Seal
   end
 
   def configuration_filename
-    @configuration_filename ||= "./config/#{ENV['SEAL_ORGANISATION']}.yml"
+    @configuration_filename ||= "./config/#{organisation}.yml"
+  end
+
+  def organisation
+    ENV['SEAL_ORGANISATION'] or fail 'Did you forget to set SEAL_ORGANISATION?'
   end
 
   def team_params(team)
